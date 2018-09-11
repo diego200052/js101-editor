@@ -1,11 +1,12 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-layout-header>
-		 <q-tabs>
+		 <q-tabs v-model="selectedTab">
 		  <template v-for="(child, index) in childrenTabs">
-		  <q-route-tab :to="child.route" slot="title">
-		  <div style="float:left"> {{ child.label }} </div>          <q-btn class="closeButton" flat round dense @click="closeFile(child.route)">X</q-btn>
-		  </q-route-tab>
+		  <q-tab :name="child.route" class="routeTabStyle" slot="title">
+		  <q-btn @click="showTab(child.route)" class="filenameButton" flat dense> {{ child.label }} </q-btn>    
+		  <q-btn @click="closeFile(child.route)" class="closeButton" flat round dense>X</q-btn>
+		  </q-tab>
 		  </template>
 		  <q-tab slot="title" name="adding" @click="add()" label="+"/>
 		 </q-tabs>
@@ -35,7 +36,7 @@
 		   </q-item-side>
         </q-item>
 		</template>
-		<q-btn @click="exportFiles()" class="bg-secondary exportFileButton"><span>Bajar Archivos</span> <q-icon name="cloud_download" /></q-btn>
+		<q-btn v-if="filesList.length>0" @click="exportFiles()" class="bg-secondary exportFileButton"><span>Bajar Archivos</span> <q-icon name="cloud_download" /></q-btn>
 
         
          </q-list>
@@ -64,7 +65,8 @@ export default {
       fileToRunConsole: "console.js", 
       leftDrawerOpen: this.$q.platform.is.desktop,
       filesList: this.getFileSavedList(),
-      childrenTabs: []
+      childrenTabs: [],
+      selectedTab: ""
     }
   },
   methods: {
@@ -79,6 +81,10 @@ export default {
 	this.childrenTabs.push(this.filesList.filter(file=>file.route == route)[0]);	       
     }
     
+    this.selectedTab = route;    
+    },
+    showTab (route){
+    this.$router.push({ path: route });
     },
 	add () {      
 this.$q.dialog({
@@ -102,7 +108,9 @@ this.$q.dialog({
     this.$q.localStorage.set(newObjFile.route,newObjFile);       
 	this.childrenTabs.push(newObjFile);	
 	this.filesList.push(newObjFile);
-	this.$router.push({ path: newObjFile.route });    
+	this.$router.push({ path: newObjFile.route });   
+	this.selectedTab = newObjFile.route;
+ 
 	
 	}
 	}
@@ -139,11 +147,13 @@ this.$q.dialog({
   if(this.$route.path ==  route){
   if(this.childrenTabs.length>0){
   this.$router.push({ path: this.childrenTabs[0].route });
+  this.selectedTab = this.childrenTabs[0].route;    
   }else{
   this.$router.push({ path: "/" });      
   }
   }
   this.$q.notify('Archivo borrado!');
+}).catch(() => {
 });
     
       
@@ -153,7 +163,9 @@ this.$q.dialog({
 	if(this.$route.path ==  route){
     if(this.childrenTabs.length>0){
 	this.$router.push({ path: this.childrenTabs[0].route });
+	this.selectedTab = this.childrenTabs[0].route;    
 	}else{
+    console.log("change tab root");
 	this.$router.push({ path: "/" });      
 	}  
     }
@@ -182,6 +194,7 @@ this.$q.dialog({
        var findTab = this.filesList.filter(file=>file.route == this.$route.path);
        if(findTab.length>0){
        this.childrenTabs.push(findTab[0]);
+       this.selectedTab = findTab[0].route;
        }else{
        this.$router.push({ path: "/" });    
        }
@@ -223,5 +236,23 @@ margin-top:10px;
 .exportFileButton span{
 margin-right:10px;
 display:inline-block;
+}
+.routeTabStyle{
+flex-direction: row;
+padding-left:0px;
+padding-top:0px;
+padding-bottom:0px;
+padding-right:10px;
+}
+.filenameButton{
+padding-left:25px;
+padding-top:8px;
+padding-bottom:8px;
+height:100%;
+}
+
+
+.filenameButton:hover q-focus-helper, .filenameButton:focus q-focus-helper, .filenameButton.q-hoverable, .filenameButton .q-focus-helper{
+background-color:transparent !important;
 }
 </style>

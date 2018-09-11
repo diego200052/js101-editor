@@ -1,0 +1,8 @@
+<script>
+var code = window.localStorage.getItem('syntaxError');
+var html = '<script> var code = "'+code.replace(/\n/gm,"\\\n").replace(/"/g,'\\"')+'"; \
+try{ eval(code); }catch(e){ console.dir(e);	window.localStorage.setItem(\'syntaxError\',e.stack); } \</script\>';
+document.write(html);
+
+</script>
+executing js
